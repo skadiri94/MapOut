@@ -1,0 +1,54 @@
+AL-Albania
+AD-Andorra
+AM-Armenia
+AT-Austria
+AX- Aland Islands
+BY-Belarus
+BE-Belgium
+BA-Bosnia and Herzegovina
+BG-Bulgaria
+CH-Switzerland
+CY-Cyprus
+CZ-Czech Republic
+DE-Germany
+DK-Denmark
+EE-Estonia
+ES-Spain
+FO-Faeroe Islands
+FI-Finland
+FR-France
+GB-United Kingdom
+GE-Georgia
+GG-Guernsey
+GI-Gibraltar
+GR-Greece
+HU-Hungary
+HR-Croatia
+IE-Ireland
+IM-Isle of Man
+IS-Iceland
+IT-Italy
+LT-Lithuania
+LI-Liechtenstein
+LU-Luxembourg
+LV-Latvia
+MC-Monaco
+ME-Montenegro
+MK-Macedonia
+MD-Moldova
+MT-Malta
+NO-Norway
+NL-Netherlands
+PL-Poland
+PT-Portugal
+RO-Romania
+RU-Russian Federation
+RS-Serbia
+SE-Sweden
+SI-Slovenia
+SJ-Svalbard and Jan Mayen
+SK-Slovakia
+SM-San Marino
+TR-Turkey
+UA-Ukraine
+VA-Vatican City State
