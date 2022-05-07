@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -16,7 +16,7 @@ public class GameManager : Singleton<GameManager>
     public List<string> CountryList;
 
 
-    private List<string> _pickCountries = new List<string>();
+    private HashSet<string> _pickCountries = new HashSet<string>();
     private List<int> _askedQuestionIndex = new List<int>();
     private List<QuestionModel> qList = new List<QuestionModel>(); 
     private System.Random random;
@@ -25,7 +25,7 @@ public class GameManager : Singleton<GameManager>
     {
        
         LoadCountries();
-        pick4Countries();
+        GenerateQuestions();
         _currentCategory = "Europe";
     
 
@@ -55,15 +55,16 @@ public class GameManager : Singleton<GameManager>
 
             int randomIndex = Random.Range(0, categoryModel.Questions.Count);
             while (categoryModel.Questions.Count > _askedQuestionIndex.Count && _askedQuestionIndex.Contains(randomIndex))
-                randomIndex = Random.Range(1, categoryModel.Questions.Count);
+                randomIndex = Random.Range(0, categoryModel.Questions.Count);
 
 
-          
-            
+
+            _askedQuestionIndex.Add(randomIndex);
+
             if (_askedQuestionIndex.Count > categoryModel.Questions.Count)
                 return null;
 
-            _askedQuestionIndex.Add(randomIndex);
+            
             return categoryModel.Questions[randomIndex];
 
         }
@@ -98,23 +99,22 @@ public class GameManager : Singleton<GameManager>
       
     }
 
-    void pick4Countries()
+    void GenerateQuestions()
     {
-      
-        
+
+
         //int index;
-        List<int> pickedCountries = new List<int>();
-        for (int j = 0; j < 10; j++)
+        
+        for (int j = 0; j < CountryList.Count; j++)
         {
             List<string> randomFour = new List<string>();
-
-            for (int i = 0; i < 4; i++)
+            List<int> pickedCountries = new List<int>();
+            for (int i = 0; i < 3; i++)
             {
 
-               int index = Random.Range(0, CountryList.Count);
-                while (CountryList.Count > pickedCountries.Count && pickedCountries.Contains(index))
-                    index = Random.Range(1, CountryList.Count);
-
+                int index = Random.Range(0, CountryList.Count);
+                while (CountryList.Count > pickedCountries.Count && pickedCountries.Contains(index) | CountryList[index] == CountryList[j])
+                    index = Random.Range(0, CountryList.Count);
 
                 pickedCountries.Add(index);
                 randomFour.Add(CountryList[index]);
@@ -122,7 +122,10 @@ public class GameManager : Singleton<GameManager>
 
             }
 
-            int randomIndex = Random.Range(0, randomFour.Count);
+            int randomIndex = Random.Range(0, randomFour.Count+1);
+            print("&& :: " + randomIndex);
+            randomFour.Insert(randomIndex, CountryList[j]);
+       
 
             qList.Add(new QuestionModel
             {
@@ -131,10 +134,15 @@ public class GameManager : Singleton<GameManager>
                 Answer2 = randomFour[1].Substring(3, randomFour[1].Length - 3),
                 Answer3 = randomFour[2].Substring(3, randomFour[2].Length - 3),
                 Answer4 = randomFour[3].Substring(3, randomFour[3].Length - 3),
-                CorrectAnswerIndex = randomIndex+1
+                CorrectAnswerIndex = randomIndex + 1
             });
+
+            _pickCountries.Add(randomFour[randomIndex]);
         }
+
+  
     }
+
 
 
     public void SetCurrentCategory(string categoryName)
@@ -153,4 +161,7 @@ public class GameManager : Singleton<GameManager>
 
         return filename.Substring(filename.Length - 6, 2);
     }
+
+
+
 }

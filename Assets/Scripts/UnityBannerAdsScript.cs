@@ -7,11 +7,6 @@ using UnityEngine.UI;
 public class UnityBannerAdsScript : MonoBehaviour
 {
 
-    // For the purpose of this example, these buttons are for functionality testing:
-    [SerializeField] Button _loadBannerButton;
-    [SerializeField] Button _showBannerButton;
-    [SerializeField] Button _hideBannerButton;
-
     [SerializeField] BannerPosition _bannerPosition = BannerPosition.BOTTOM_CENTER;
 
     [SerializeField] string _androidAdUnitId = "Banner_Android";
@@ -42,6 +37,7 @@ public class UnityBannerAdsScript : MonoBehaviour
         //_loadBannerButton.onClick.AddListener(LoadBanner);
         //_loadBannerButton.interactable = true;
         LoadBanner();
+        ShowBannerAd();
     }
 
     // Implement a method to call when the Load Banner button is clicked:

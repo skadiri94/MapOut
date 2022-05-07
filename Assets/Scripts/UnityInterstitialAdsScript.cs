@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Advertisements;
 
-public class UnityInterstitialAdsScript : MonoBehaviour, IUnityAdsLoadListener, IUnityAdsShowListener
+public class UnityInterstitialAdsScript : MonoBehaviour,  IUnityAdsLoadListener, IUnityAdsShowListener
 {
     [SerializeField] string _androidAdUnitId = "Interstitial_Android";
     [SerializeField] string _iOSAdUnitId = "Interstitial_iOS";
@@ -29,6 +29,7 @@ public class UnityInterstitialAdsScript : MonoBehaviour, IUnityAdsLoadListener, 
         Debug.Log("Loading Ad: " + _adUnitId);
         Advertisement.Load(_adUnitId, this);
     }
+
 
     // Show the loaded content in the Ad Unit:
     public void ShowAd()
@@ -59,5 +60,19 @@ public class UnityInterstitialAdsScript : MonoBehaviour, IUnityAdsLoadListener, 
     public void OnUnityAdsShowStart(string adUnitId) { }
     public void OnUnityAdsShowClick(string adUnitId) { }
     public void OnUnityAdsShowComplete(string adUnitId, UnityAdsShowCompletionState showCompletionState) { }
+
+    public void ShowInterstitialAds()
+    {
+        if (UnityEngine.Random.Range(0, 2) == 1)
+        {
+          
+            InitAdsScript.Instance.ShowInterstitial();
+        }
+        else
+        {
+         
+            UnityInterstitialAdsScript.FindObjectOfType<UnityInterstitialAdsScript>().ShowAd();
+        }
+    }
 
 }

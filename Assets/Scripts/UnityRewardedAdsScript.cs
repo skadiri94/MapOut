@@ -2,30 +2,22 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Advertisements;
-using UnityEngine.UI;
 
-public class UnityRewardedAdsScript : MonoBehaviour, IUnityAdsLoadListener, IUnityAdsShowListener
+
+public class UnityRewardedAdsScript : MonoBehaviour, IUnityAdsShowListener
 {
-    [SerializeField] Button _showAdButton;
+    //[SerializeField] Button _showAdButton;
     [SerializeField] string _androidAdUnitId = "Rewarded_Android";
     [SerializeField] string _iOSAdUnitId = "Rewarded_iOS";
     string _adUnitId = null; // This will remain null for unsupported platforms
 
     void Awake()
     {
-        //        // Get the Ad Unit ID for the current platform:
-        //#if UNITY_IOS
-        //        _adUnitId = _iOSAdUnitId;
-        //#elif UNITY_ANDROID
-        //        _adUnitId = _androidAdUnitId;
-        //#endif
-        // Get the Ad Unit ID for the current platform:
+     
         _adUnitId = (Application.platform == RuntimePlatform.IPhonePlayer)
             ? _iOSAdUnitId
             : _androidAdUnitId;
 
-        //Disable the button until the ad is ready to show:
-        //_showAdButton.interactable = false;
     }
 
     void Start()
@@ -38,29 +30,13 @@ public class UnityRewardedAdsScript : MonoBehaviour, IUnityAdsLoadListener, IUni
     {
         // IMPORTANT! Only load content AFTER initialization (in this example, initialization is handled in a different script).
         Debug.Log("Loading Ad: " + _adUnitId);
-        Advertisement.Load(_adUnitId, this);
+        Advertisement.Load(_adUnitId);
     }
 
-    // If the ad successfully loads, add a listener to the button and enable it:
-    public void OnUnityAdsAdLoaded(string adUnitId)
-    {
-        Debug.Log("Ad Loaded: " + adUnitId);
-
-        if (adUnitId.Equals(_adUnitId))
-        {
-            // Configure the button to call the ShowAd() method when clicked:
-            _showAdButton.onClick.AddListener(ShowAd);
-            // Enable the button for users to click:
-            //_showAdButton.interactable = true;
-        }
-    }
 
     // Implement a method to execute when the user clicks the button:
     public void ShowAd()
     {
-        // Disable the button:
-        //_showAdButton.interactable = false;
-        // Then show the ad:
         Advertisement.Show(_adUnitId, this);
     }
 
@@ -70,10 +46,10 @@ public class UnityRewardedAdsScript : MonoBehaviour, IUnityAdsLoadListener, IUni
         if (adUnitId.Equals(_adUnitId) && showCompletionState.Equals(UnityAdsShowCompletionState.COMPLETED))
         {
             Debug.Log("Unity Ads Rewarded Ad Completed");
-            // Grant a reward.
-            GetComponentInParent<AdsManagerScript>().getStatus().text = "Rewarded";
-            // Load another ad:
-            Advertisement.Load(_adUnitId, this);
+ 
+            Advertisement.Load(_adUnitId);
+
+            QuestionsManager.Instance.setHints(1);
         }
     }
 

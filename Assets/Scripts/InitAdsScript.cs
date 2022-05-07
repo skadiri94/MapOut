@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using GoogleMobileAds.Api;
@@ -11,62 +11,46 @@ public class InitAdsScript : MonoBehaviour
     private InterstitialAd adMobInterstitial;
     private RewardedAd adMobReward;
     BannerView bannerView;
-    private bool shownAds = false;
-    string bannerAdUnitId;
     string interstitialAdUnitId;
     string rewardAdUnitId;
 
 
+    static InitAdsScript instance = null;
+    public static InitAdsScript Instance
+    {
+        get
+        {
+
+            if (instance == null)
+            {
+
+                instance = GameObject.FindObjectOfType(typeof(InitAdsScript)) as InitAdsScript;
+            }
+
+            return instance;
+        }
+    }
+  
     // Start is called before the first frame update
     void Start()
     {
 
-        bannerAdUnitId = "ca-app-pub-3940256099942544/6300978111";
-
-        rewardAdUnitId = "ca-app-pub-3940256099942544/5224354917";
-        interstitialAdUnitId = "ca-app-pub-3940256099942544/1033173712";
-
         
 
-        MobileAds.Initialize(InitializationStatus => { });
-        RequestBanner();
-
-        //adMobReward = new RewardedAd(rewardAdUnitId);
-
-        if (!shownAds)
-        {
+        MobileAds.Initialize(initStatus => { });
 
 
-            //Google Interstitial
-            requestInterstitial();
-            if (adMobInterstitial.IsLoaded())
-            {
-                adMobInterstitial.Show();
-                //countdownTime = 5f;
-                //startTimer = true;
-                //Time.timeScale = 1f;
-                Debug.Log("Google Interstitial");
-            }
-            
+        this.RequestBanner();
+        this.requestInterstitial();
+        this.requestRewarded();
+        
 
-
-
-            // if(startTimer && countdownTime >= 0.0f)
-            // {
-            //     countdownTime -= Time.deltaTime;
-            // }
-
-            if (adMobInterstitial != null && adMobInterstitial.IsLoaded())
-            {
-                adMobInterstitial.Destroy();
-                //startTimer = false;
-            }
-        }
     }
 
-    // Update is called once per frame
+  
     void Update()
     {
+      
 
     }
 
@@ -75,33 +59,68 @@ public class InitAdsScript : MonoBehaviour
 #if UNITY_ANDROID
 
 #elif UNITY_IPHONE
-            string adUnitId = "ca-app-pub-3940256099942544/2934735716";
+string adUnitId = "ca-app-pub-3940256099942544/6300978111";
 #else
         string adUnitId = "unexpected_platform";
 #endif
 
+        string adUnitId = "ca-app-pub-3940256099942544/6300978111";
 
-        // Create a 320x50 banner at the top of the screen.
-        this.bannerView = new BannerView(bannerAdUnitId, AdSize.Banner, AdPosition.Top);
+        this.bannerView = new BannerView(adUnitId, AdSize.Banner, AdPosition.Top);
+
+        // Called when an ad request has successfully loaded.
+        this.bannerView.OnAdLoaded += this.HandleOnAdLoaded;
+        // Called when an ad request failed to load.
+        this.bannerView.OnAdFailedToLoad += this.HandleOnAdFailedToLoad;
+        // Called when an ad is clicked.
+        this.bannerView.OnAdOpening += this.HandleOnAdOpened;
+        // Called when the user returned from the app after an ad click.
+        this.bannerView.OnAdClosed += this.HandleOnAdClosed;
+        // Called when the ad click caused the user to leave the application.
+        //this.bannerView.OnAdLeavingApplication += this.HandleOnAdLeavingApplication;
 
         // Create an empty ad request.
         AdRequest request = new AdRequest.Builder().Build();
 
         // Load the banner with the request.
         this.bannerView.LoadAd(request);
+
     }
 
     //AdMob Interstitial
-    private void requestInterstitial()
+    public void requestInterstitial()
+    {
+        string adUnitId = "ca-app-pub-3940256099942544/1033173712";
+        // Initialize an InterstitialAd.
+        this.adMobInterstitial = new InterstitialAd(adUnitId);
+
+        // Called when an ad request has successfully loaded.
+        this.adMobInterstitial.OnAdLoaded += HandleOnAdLoaded;
+        // Called when an ad request failed to load.
+        this.adMobInterstitial.OnAdFailedToLoad += HandleOnAdFailedToLoad;
+        // Called when an ad is shown.
+        this.adMobInterstitial.OnAdOpening += HandleOnAdOpening;
+        // Called when the ad is closed.
+        this.adMobInterstitial.OnAdClosed += HandleOnAdClosed;
+
+        // Create an empty ad request.
+        AdRequest request = new AdRequest.Builder().Build();
+        // Load the interstitial with the request.
+        this.adMobInterstitial.LoadAd(request);
+
+    }
+
+
+    public void ShowInterstitial()
     {
 
-        adMobInterstitial = new InterstitialAd(interstitialAdUnitId);
+        if (adMobInterstitial.IsLoaded())
+        {
+            adMobInterstitial.Show();
+        }
+        else
+            requestInterstitial();
 
-        AdRequest request = new AdRequest.Builder().Build();
-
-        adMobInterstitial.LoadAd(request);
-
-        shownAds = true;
     }
 
 
@@ -109,23 +128,37 @@ public class InitAdsScript : MonoBehaviour
     //Google Rewarded
     public void requestRewarded()
     {
-        adMobReward = new RewardedAd(rewardAdUnitId);
+        string adUnitId = "ca-app-pub-3940256099942544/5224354917";
+        this.adMobReward = new RewardedAd(adUnitId);
 
-        AdRequest request = new AdRequest.Builder().Build();
-
+        // Called when an ad request has successfully loaded.
+        this.adMobReward.OnAdLoaded += HandleRewardedAdLoaded;
+        // Called when an ad request failed to load.
+        this.adMobReward.OnAdFailedToLoad += HandleRewardedAdFailedToLoad;
+        // Called when an ad is shown.
+        this.adMobReward.OnAdOpening += HandleRewardedAdOpening;
+        // Called when an ad request failed to show.
+        this.adMobReward.OnAdFailedToShow += HandleRewardedAdFailedToShow;
         // Called when the user should be rewarded for interacting with the ad.
-        adMobReward.OnUserEarnedReward += HandleUserEarnedReward;
+        this.adMobReward.OnUserEarnedReward += HandleUserEarnedReward;
+        // Called when the ad is closed.
+        this.adMobReward.OnAdClosed += HandleRewardedAdClosed;
 
-        adMobReward.LoadAd(request);
+        // Create an empty ad request.
+        AdRequest request = new AdRequest.Builder().Build();
+        // Load the rewarded ad with the request.
+        this.adMobReward.LoadAd(request);
     }
 
     public void showGoogleRewardedVideo()
     {
-        requestRewarded();
+
         if (adMobReward.IsLoaded())
         {
             adMobReward.Show();
+
         }
+        else requestRewarded();
     }
 
 
@@ -137,7 +170,7 @@ public class InitAdsScript : MonoBehaviour
     public void HandleOnAdFailedToLoad(object sender, AdFailedToLoadEventArgs args)
     {
         MonoBehaviour.print("HandleFailedToReceiveAd event received with message: "
-                            + args.ToString());
+                            + args.LoadAdError.GetMessage());
     }
 
     public void HandleOnAdOpening(object sender, EventArgs args)
@@ -150,14 +183,52 @@ public class InitAdsScript : MonoBehaviour
         MonoBehaviour.print("HandleAdClosed event received");
     }
 
+
+    public void HandleOnAdOpened(object sender, EventArgs args)
+    {
+        MonoBehaviour.print("HandleAdOpened event received");
+    }
+
+    public void HandleRewardedAdLoaded(object sender, EventArgs args)
+    {
+        MonoBehaviour.print("HandleRewardedAdLoaded event received");
+    }
+
+    public void HandleRewardedAdFailedToLoad(object sender, AdFailedToLoadEventArgs args)
+    {
+        MonoBehaviour.print(
+            "HandleRewardedAdFailedToLoad event received with message: "
+                             + args.LoadAdError.GetMessage());
+    }
+
+    public void HandleRewardedAdOpening(object sender, EventArgs args)
+    {
+        MonoBehaviour.print("HandleRewardedAdOpening event received");
+    }
+
+    public void HandleRewardedAdFailedToShow(object sender, AdErrorEventArgs args)
+    {
+        MonoBehaviour.print(
+            "HandleRewardedAdFailedToShow event received with message: "
+                             + args.AdError.GetMessage());
+    }
+
+    public void HandleRewardedAdClosed(object sender, EventArgs args)
+    {
+        MonoBehaviour.print("HandleRewardedAdClosed event received");
+    }
+
     public void HandleUserEarnedReward(object sender, Reward args)
     {
         string type = args.Type;
         double amount = args.Amount;
         MonoBehaviour.print(
-            "HandleRewardedAdRewarded event received for 1 hint");
-        //GetComponent<GameManager>().setHints(1);
+            "HandleRewardedAdRewarded event received for "
+                        + amount.ToString() + " " + type);
 
+        QuestionsManager.Instance.setHints(1);
     }
+
+
 
 }

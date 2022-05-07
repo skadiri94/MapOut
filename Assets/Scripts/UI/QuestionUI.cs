@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
@@ -42,8 +42,7 @@ public class QuestionUI : MonoBehaviour
     public void ClearQuestion()
     {
         SceneManager.LoadScene("Main");
-        //PanelManager.Instance.HideLastPanel();
-        //PanelManager.Instance.ShowPanel("MenuScreen");
+
     }
 
 }

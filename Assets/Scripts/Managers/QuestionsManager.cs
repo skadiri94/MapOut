@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using DG.Tweening;
 using TMPro;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class QuestionsManager : Singleton<QuestionsManager>
 {
@@ -14,9 +15,11 @@ public class QuestionsManager : Singleton<QuestionsManager>
     public GameModel Configuration;
     public TextMeshProUGUI scoreText;
     public TextMeshProUGUI HintText;
-    public int score = 0;
+    public GameObject currentScreen;
+    public  long score = 0;
     public Text hintCount;
-    public int hints = 3;
+    bool hintNotUsed = true;
+    private int hints;
     public Transform IncorrectImage;
     public Transform CorrectImage;
     public Dictionary<string, Texture2D> imgDic;
@@ -25,31 +28,18 @@ public class QuestionsManager : Singleton<QuestionsManager>
     public static Action OnAnswerProvided;
     public QuestionUI Question;
     private GameManager _gameManager;
-    public InitAdsScript initAds;
+    //public InitAdsScript initAds;
     private string _currentCategory;
 
 
 
     private QuestionModel _currentQuestion;
-   
+
+    public UnityInterstitialAdsScript UnityAds;
 
     void Start()
     {
-        initAds = new InitAdsScript();
-
-        //imgDic = new Dictionary<string, Texture2D>();
-        //string path = Application.dataPath;
-
-        //path += "/Resources/Images";
-
-        //filenames = Directory.GetFiles(path, "*.png");
-        //foreach (string filename in filenames)
-        //{
-
-        //    string countryCode = ExtractCountryCode(filename);
-        //    Texture2D countryImg = Resources.Load<Texture2D>("Images/" + countryCode);
-        //    imgDic.Add(countryCode, countryImg);
-        //}
+        hints = 1;
 
         //Cache a reference
         _gameManager = GameManager.Instance;
@@ -70,6 +60,7 @@ public class QuestionsManager : Singleton<QuestionsManager>
 
     public void LoadNextQuestion()
     {
+        hintNotUsed = true;
         _currentQuestion = _gameManager.GetQuestionForCategory(_currentCategory);
 
 
@@ -80,7 +71,10 @@ public class QuestionsManager : Singleton<QuestionsManager>
 
         }
         else
-            Question.ClearQuestion();
+        {
+            
+            GameOver();
+        }
 
         
         OnNewQuestionLoaded?.Invoke();
@@ -104,6 +98,8 @@ public class QuestionsManager : Singleton<QuestionsManager>
                 score -= 5;
 
             TweenResult(IncorrectImage);
+
+            GameOver();
         }
 
         
@@ -121,24 +117,55 @@ public class QuestionsManager : Singleton<QuestionsManager>
 
     public void ShowHint()
     {
-
-        if (hints > 0)
+        if (hintNotUsed)
         {
-            SetHintText(_currentQuestion.Question);
 
-            HintText.gameObject.SetActive(true);
-            hints--;
-        }
-        else
-        {
-            initAds.requestRewarded();
-            initAds.showGoogleRewardedVideo();
+            if (hints > 0)
+            {
+                SetHintText(_currentQuestion.Question);
+
+                HintText.gameObject.SetActive(true);
+                hints--;
+                hintNotUsed = false;
+            }
+            else
+            {
+                
+                if (UnityEngine.Random.Range(0, 2) == 1)
+                {
+                    InitAdsScript.Instance.showGoogleRewardedVideo();
+                }
+                else
+                {
+                    UnityRewardedAdsScript.FindObjectOfType<UnityRewardedAdsScript>().ShowAd();
+                }
+
+
+            }
         }
 
+    }
+    public void BackToMenu()
+    {
+        //PanelManager.Instance.HideLastPanel();
+        currentScreen.SetActive(false);
+        PanelManager.Instance.ShowPanel("MenuScreen");
+    }
+
+    public void GameOver()
+    {
+        GPGSManager.FindObjectOfType<GPGSManager>().PostScoreToLeaderboard(score);
+        GPGSManager.FindObjectOfType<GPGSManager>().postAchievement(score);
+        currentScreen.SetActive(false);
+       PanelManager.Instance.ShowPanel("GameOverScreen");
     }
     void SetHintText(string text)
     {
         HintText.text = "Hint: "+ text.Substring(7, 2);
+    }
+    public void setHints(int val)
+    {
+        this.hints =+ val;
     }
 
 }

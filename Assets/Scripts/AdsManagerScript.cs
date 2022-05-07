@@ -9,15 +9,19 @@ public class AdsManagerScript : MonoBehaviour, IUnityAdsInitializationListener
     [SerializeField] string _androidGameId;
     [SerializeField] string _iOSGameId;
     [SerializeField] bool _testMode = true;
+ 
     private string _gameId;
 
-    [SerializeField] Text adsStatus;
 
     void Awake()
     {
         InitializeAds();
+        
     }
-
+    public void Update()
+    {
+       
+    }
     public void InitializeAds()
     {
         _gameId = (Application.platform == RuntimePlatform.IPhonePlayer)
@@ -36,8 +40,7 @@ public class AdsManagerScript : MonoBehaviour, IUnityAdsInitializationListener
         Debug.Log($"Unity Ads Initialization Failed: {error.ToString()} - {message}");
     }
 
-    public Text getStatus()
-    {
-        return adsStatus;
-    }
+
+
+
 }
